@@ -249,10 +249,6 @@ export default function SearchModal({ isOpen, onClose, onSubmit }) {
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded flex items-center gap-1">
-                    <CheckCircle size={10} />
-                    {q.QuestionNum}번
-                  </span>
                   {user && (
                     <div onClick={(e) => e.stopPropagation()}>
                       <BookmarkButton
