@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from 'react'
-import { renderText, FootnoteList, _processFootnotes } from '@/lib/renderText' 
+import { renderText, renderTextWithSplits, FootnoteList, _processFootnotes } from '@/lib/renderText' 
 import Image from 'next/image'
 import { X, Eye, EyeOff } from 'lucide-react'
 
@@ -21,8 +21,8 @@ export default function QuestionDetailModal({ question, onClose }) {
   const { processedText: explanationText, localFootnotes: explanationFootnotes } = 
     _processFootnotes(question.Explanation);
     
-  const renderedPassage = renderText(passageText);
-  const renderedBox = renderText(boxText);
+  const renderedPassage = renderTextWithSplits(passageText, 'PASSAGE_SPLIT');
+  const renderedBox = renderTextWithSplits(boxText, 'BOX_SPLIT');
   const renderedHeader = renderText(question.PassageHeader);
   const renderedExplanation = renderText(explanationText);
 

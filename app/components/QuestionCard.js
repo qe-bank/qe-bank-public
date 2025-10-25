@@ -1,6 +1,6 @@
 'use client'
 
-import { renderText, FootnoteList, _processFootnotes } from '../../lib/renderText'
+import { renderText, renderTextWithSplits, FootnoteList, _processFootnotes } from '../../lib/renderText'
 import Image from 'next/image'
 import { useState } from 'react'
 import BookmarkButton from './BookmarkButton'
@@ -25,8 +25,8 @@ export default function QuestionCard({
   const { processedText: boxText, localFootnotes: boxFootnotes } = 
     _processFootnotes(primaryQuestion.QuestionBox);
     
-  const renderedPassage = renderText(passageText);
-  const renderedBox = renderText(boxText);
+  const renderedPassage = renderTextWithSplits(passageText, 'PASSAGE_SPLIT');
+  const renderedBox = renderTextWithSplits(boxText, 'BOX_SPLIT');
   const renderedHeader = renderText(primaryQuestion.PassageHeader);
   
   const [showExplanation, setShowExplanation] = useState(false);
