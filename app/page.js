@@ -254,17 +254,17 @@ function HomePageContent() {
                   <LoginWelcome />
                 </div>
                 <div className="md:col-span-1 order-3 lg:order-2">
-                  <button 
+              <button 
                     onClick={() => setIsSearchOpen(true)}
                     className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg h-full w-full flex flex-col items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                  >
+              >
                     <Search size={36} className="text-gray-400 mb-3" />
                     <span className="text-xl font-bold">문제 검색</span>
                     <span className="text-sm text-gray-500">키워드로 문제 찾기</span>
-                  </button>
-                </div>
-              </div>
-              
+              </button>
+            </div>
+          </div>
+          
               {/* 모바일에서 두 번째: 공지사항 */}
               <div className="order-2 lg:hidden">
                 <NoticeBoard />

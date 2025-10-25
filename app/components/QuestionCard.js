@@ -36,18 +36,18 @@ export default function QuestionCard({
   const [showExplanation, setShowExplanation] = useState(false);
 
   return (
-    <div className="text-gray-900 dark:text-white leading-relaxed text-sm">
+    <div className="text-gray-900 dark:text-white leading-relaxed">
       
       {(primaryQuestion.PassageGroup || renderedHeader || passageBlocks.length > 0) && (
         <div className="mb-6 pb-4 border-b dark:border-gray-700 space-y-3">
-          {(primaryQuestion.PassageGroup || renderedHeader) && (
-            <div className="text-sm">
-              {settings.mode === 'mock' && primaryQuestion.PassageGroup && 
-                <strong className="mr-1.5 text-blue-600 dark:text-blue-400">[{primaryQuestion.PassageGroup}]</strong>
-              }
-              {renderedHeader}
-            </div>
-          )}
+           {(primaryQuestion.PassageGroup || renderedHeader) && (
+             <div>
+               {settings.mode === 'mock' && primaryQuestion.PassageGroup && 
+                 <strong className="mr-1.5 text-blue-600 dark:text-blue-400">[{primaryQuestion.PassageGroup}]</strong>
+               }
+               {renderedHeader}
+             </div>
+           )}
           
           {renderedPassageBlocks.map((content, i) => (
             <div key={i} className={`p-2 border border-gray-200 dark:border-gray-800 rounded bg-transparent ${i > 0 ? 'mt-2' : ''}`}>

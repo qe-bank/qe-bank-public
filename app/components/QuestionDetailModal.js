@@ -69,7 +69,7 @@ export default function QuestionDetailModal({ question, onClose }) {
         {/* 메인 컨텐츠 영역 */}
         <div className={`flex gap-2 sm:gap-4 overflow-hidden ${showExplanation ? 'flex-col lg:flex-row' : 'flex-col'}`}>
           {/* 문제 영역 */}
-          <div className={`overflow-y-auto pr-1 sm:pr-2 space-y-3 sm:space-y-4 text-sm leading-relaxed ${showExplanation ? 'w-full lg:w-1/2 max-h-[50vh] lg:max-h-none' : 'w-full max-h-[60vh]'}`}>
+          <div className={`overflow-y-auto pr-1 sm:pr-2 space-y-3 sm:space-y-4 leading-relaxed ${showExplanation ? 'w-full lg:w-1/2 max-h-[50vh] lg:max-h-none' : 'w-full max-h-[60vh]'}`}>
             {/* 지문 */}
             {(question.PassageGroup || renderedHeader || passageBlocks.length > 0) && (
               <div className="space-y-2">
