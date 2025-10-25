@@ -231,7 +231,7 @@ export default function SearchModal({ isOpen, onClose, onSubmit }) {
                       {q.ExamYear}년 {q.ExamRound}회
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      ID:{q.QuestionID}
+                      {q.QuestionNum}번
                     </span>
                   </div>
                   {q.PassageGroup && (
