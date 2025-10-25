@@ -13,18 +13,22 @@ export default function QuestionDetailModal({ question, onClose }) {
 
   const options = [question.Option1, question.Option2, question.Option3, question.Option4];
   
-  // 각주 처리
-  const { processedText: passageText, localFootnotes: passageFootnotes } = 
-    _processFootnotes(question.Passage);
-  const { processedText: boxText, localFootnotes: boxFootnotes } = 
-    _processFootnotes(question.QuestionBox);
-  const { processedText: explanationText, localFootnotes: explanationFootnotes } = 
-    _processFootnotes(question.Explanation);
-    
-  const renderedPassage = renderTextWithSplits(passageText, 'PASSAGE_SPLIT');
-  const renderedBox = renderTextWithSplits(boxText, 'BOX_SPLIT');
+  // admin LivePreview.js와 동일한 방식으로 처리
+  const passageBlocks = question.Passage ? question.Passage.split('[PASSAGE_SPLIT]') : [];
+  const passageData = passageBlocks.map((block) => _processFootnotes(block));
+  const allPassageFootnotes = passageData.flatMap(d => d.localFootnotes);
+  const renderedPassageBlocks = passageData.map(d => renderText(d.processedText));
+  
+  const questionBoxBlocks = question.QuestionBox ? question.QuestionBox.split('[BOX_SPLIT]') : [];
+  const questionBoxData = questionBoxBlocks.map((block) => _processFootnotes(block));
+  const allQuestionBoxFootnotes = questionBoxData.flatMap(d => d.localFootnotes);
+  const renderedQuestionBoxBlocks = questionBoxData.map(d => renderText(d.processedText));
+  
+  const explanationText = question.Explanation || '';
+  const { processedText: processedExplanationText, localFootnotes: allExplanationFootnotes } = _processFootnotes(explanationText);
+  const renderedExplanationContent = renderText(processedExplanationText);
+  
   const renderedHeader = renderText(question.PassageHeader);
-  const renderedExplanation = renderText(explanationText);
 
   return (
     <div 
@@ -67,7 +71,7 @@ export default function QuestionDetailModal({ question, onClose }) {
           {/* 문제 영역 */}
           <div className={`overflow-y-auto pr-1 sm:pr-2 space-y-3 sm:space-y-4 text-sm leading-relaxed ${showExplanation ? 'w-full lg:w-1/2 max-h-[50vh] lg:max-h-none' : 'w-full max-h-[60vh]'}`}>
             {/* 지문 */}
-            {(question.PassageGroup || renderedHeader || renderedPassage) && (
+            {(question.PassageGroup || renderedHeader || passageBlocks.length > 0) && (
               <div className="space-y-2">
                 {(question.PassageGroup || renderedHeader) && (
                   <div>
@@ -75,12 +79,14 @@ export default function QuestionDetailModal({ question, onClose }) {
                     {renderedHeader}
                   </div>
                 )}
-                {renderedPassage && (
-                  <div className="p-3 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    {renderedPassage}
+                
+                {renderedPassageBlocks.map((content, i) => (
+                  <div key={i} className={`p-2 border border-gray-200 dark:border-gray-800 rounded bg-transparent ${i > 0 ? 'mt-2' : ''}`}>
+                    {content}
                   </div>
-                )}
-                <FootnoteList localFootnotes={passageFootnotes} />
+                ))}
+                
+                <FootnoteList localFootnotes={allPassageFootnotes} />
               </div>
             )}
 
@@ -97,10 +103,14 @@ export default function QuestionDetailModal({ question, onClose }) {
             )}
             
             {/* 보기 */}
-            {renderedBox && (
-              <div className="my-3 p-4 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
-                {renderedBox}
-                <FootnoteList localFootnotes={boxFootnotes} />
+            {questionBoxBlocks.length > 0 && (
+              <div className="my-3 space-y-2">
+                {renderedQuestionBoxBlocks.map((content, i) => (
+                  <div key={i} className={`p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded shadow-inner ${i > 0 ? 'mt-2' : ''}`}>
+                    {content}
+                  </div>
+                ))}
+                <FootnoteList localFootnotes={allQuestionBoxFootnotes} />
               </div>
             )}
 
@@ -130,15 +140,15 @@ export default function QuestionDetailModal({ question, onClose }) {
           </div>
 
           {/* 해설 영역 */}
-          {showExplanation && renderedExplanation && (
+          {showExplanation && question.Explanation && (
             <div className="w-full lg:w-1/2 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-600 pt-4 lg:pt-0 lg:pl-4 flex flex-col">
               <h4 className="font-semibold text-blue-600 dark:text-blue-400 text-base sm:text-lg border-b border-gray-200 dark:border-gray-600 pb-2 mb-3 sm:mb-4">
                 해설
               </h4>
               <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 max-h-[40vh] lg:max-h-[60vh]">
                 <div className="space-y-2 text-sm leading-relaxed text-gray-900 dark:text-gray-100">
-                  {renderedExplanation}
-                  <FootnoteList localFootnotes={explanationFootnotes} />
+                  {renderedExplanationContent}
+                  <FootnoteList localFootnotes={allExplanationFootnotes} />
                 </div>
               </div>
               {/* 출처/분류 */}

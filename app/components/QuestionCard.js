@@ -20,13 +20,17 @@ export default function QuestionCard({
   
   const primaryQuestion = questions[0];
   
-  const { processedText: passageText, localFootnotes: passageFootnotes } = 
-    _processFootnotes(primaryQuestion.Passage);
-  const { processedText: boxText, localFootnotes: boxFootnotes } = 
-    _processFootnotes(primaryQuestion.QuestionBox);
-    
-  const renderedPassage = renderTextWithSplits(passageText, 'PASSAGE_SPLIT');
-  const renderedBox = renderTextWithSplits(boxText, 'BOX_SPLIT');
+  // admin LivePreview.js와 동일한 방식으로 처리
+  const passageBlocks = primaryQuestion.Passage ? primaryQuestion.Passage.split('[PASSAGE_SPLIT]') : [];
+  const passageData = passageBlocks.map((block) => _processFootnotes(block));
+  const allPassageFootnotes = passageData.flatMap(d => d.localFootnotes);
+  const renderedPassageBlocks = passageData.map(d => renderText(d.processedText));
+  
+  const questionBoxBlocks = primaryQuestion.QuestionBox ? primaryQuestion.QuestionBox.split('[BOX_SPLIT]') : [];
+  const questionBoxData = questionBoxBlocks.map((block) => _processFootnotes(block));
+  const allQuestionBoxFootnotes = questionBoxData.flatMap(d => d.localFootnotes);
+  const renderedQuestionBoxBlocks = questionBoxData.map(d => renderText(d.processedText));
+  
   const renderedHeader = renderText(primaryQuestion.PassageHeader);
   
   const [showExplanation, setShowExplanation] = useState(false);
@@ -34,7 +38,7 @@ export default function QuestionCard({
   return (
     <div className="text-gray-900 dark:text-white leading-relaxed text-sm">
       
-      {(primaryQuestion.PassageGroup || renderedHeader || renderedPassage) && (
+      {(primaryQuestion.PassageGroup || renderedHeader || passageBlocks.length > 0) && (
         <div className="mb-6 pb-4 border-b dark:border-gray-700 space-y-3">
           {(primaryQuestion.PassageGroup || renderedHeader) && (
             <div className="text-sm">
@@ -44,12 +48,14 @@ export default function QuestionCard({
               {renderedHeader}
             </div>
           )}
-          {renderedPassage && (
-            <div className="p-3 border border-gray-200 dark:border-gray-800 rounded bg-gray-50 dark:bg-gray-800/50 text-sm">
-              {renderedPassage}
+          
+          {renderedPassageBlocks.map((content, i) => (
+            <div key={i} className={`p-2 border border-gray-200 dark:border-gray-800 rounded bg-transparent ${i > 0 ? 'mt-2' : ''}`}>
+              {content}
             </div>
-          )}
-          <FootnoteList localFootnotes={passageFootnotes} />
+          ))}
+          
+          <FootnoteList localFootnotes={allPassageFootnotes} />
         </div>
       )}
 
@@ -91,10 +97,14 @@ export default function QuestionCard({
               </div>
             )}
             
-            {index === 0 && renderedBox && (
-              <div className="my-4 p-4 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow-inner">
-                {renderedBox}
-                <FootnoteList localFootnotes={boxFootnotes} />
+            {index === 0 && questionBoxBlocks.length > 0 && (
+              <div className="my-4 space-y-2">
+                {renderedQuestionBoxBlocks.map((content, i) => (
+                  <div key={i} className={`p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded shadow-inner ${i > 0 ? 'mt-2' : ''}`}>
+                    {content}
+                  </div>
+                ))}
+                <FootnoteList localFootnotes={allQuestionBoxFootnotes} />
               </div>
             )}
 
