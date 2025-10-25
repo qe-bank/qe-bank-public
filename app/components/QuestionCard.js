@@ -32,7 +32,7 @@ export default function QuestionCard({
   const [showExplanation, setShowExplanation] = useState(false);
 
   return (
-    <div className="text-gray-900 dark:text-white leading-relaxed">
+    <div className="text-gray-900 dark:text-white leading-relaxed text-sm">
       
       {(primaryQuestion.PassageGroup || renderedHeader || renderedPassage) && (
         <div className="mb-6 pb-4 border-b dark:border-gray-700 space-y-3">
