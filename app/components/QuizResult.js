@@ -50,13 +50,17 @@ export default function QuizResult({ questionGroups, answers, onQuit }) {
         <div className="flex justify-center gap-4 mt-6">
           <button
             onClick={onQuit}
-            className="px-4 py-2 font-semibold text-gray-700 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-lg hover:bg-gray-200"
+            className="px-4 py-2 font-semibold text-gray-700 bg-gray-100 dark:bg-gray-800 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             &larr; 홈으로
           </button>
           <button 
             onClick={() => setShowOnlyWrong(!showOnlyWrong)}
-            className={`px-4 py-2 font-semibold rounded-lg ${showOnlyWrong ? 'bg-red-100 text-red-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white'}`}
+            className={`px-4 py-2 font-semibold rounded-lg ${
+              showOnlyWrong
+                ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-200'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white'
+            }`}
           >
             {showOnlyWrong ? '전체 문제 보기' : '틀린 문제만'}
           </button>
@@ -75,8 +79,8 @@ export default function QuizResult({ questionGroups, answers, onQuit }) {
               onClick={() => scrollToQuestion(q.displayNum)}
               className={`w-10 h-10 rounded text-sm font-semibold flex items-center justify-center border transition-colors ${
                 q.isCorrect 
-                  ? 'bg-green-100 dark:bg-green-900/50 border-green-300 text-green-700 dark:text-green-300 hover:bg-green-200' 
-                  : 'bg-red-100 dark:bg-red-900/50 border-red-300 text-red-700 dark:text-red-300 hover:bg-red-200'
+                  ? 'bg-green-100 dark:bg-green-900/50 border-green-300 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/70' 
+                  : 'bg-red-100 dark:bg-red-900/50 border-red-300 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/70'
               }`}
             >
               {q.displayNum}

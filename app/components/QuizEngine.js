@@ -207,13 +207,13 @@ export default function QuizEngine({
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       <div className="flex justify-between items-center mb-4">
-        <button onClick={onQuit} className="text-sm text-gray-500 hover:underline">
+        <button onClick={onQuit} className="text-sm text-gray-500 dark:text-gray-400 hover:underline">
           &larr; 나가기
         </button>
         <h2 className="text-lg font-bold text-center">
           {settings.title || `${settings.year}년 ${settings.round}회`}
         </h2>
-        <span className="text-sm font-semibold text-blue-600 min-w-[80px] text-right">
+        <span className="text-sm font-semibold text-blue-600 dark:text-cyan-300 min-w-[80px] text-right">
           {isOneByOneMode 
             ? `${currentGroupIndex + 1}번째 문제` 
             : `${currentGroupIndex + 1} / ${questionGroups.length}`}
@@ -259,7 +259,7 @@ export default function QuizEngine({
                   setShowEarlyResult(true);
                 }
               }}
-              className="flex items-center gap-1 text-sm text-red-500 hover:underline px-6 py-2"
+              className="flex items-center gap-1 text-sm text-red-500 dark:text-red-400 hover:underline px-6 py-2"
             >
               <XCircle size={16} />
               그만 풀기

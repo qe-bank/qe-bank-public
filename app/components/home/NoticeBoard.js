@@ -55,10 +55,10 @@ export default function NoticeBoard() {
       />
       
       <div className="flex justify-between items-center mb-4 border-b pb-2 dark:border-gray-700">
-        <h2 className="text-xl font-bold">공지사항</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">공지사항</h2>
         <Link 
           href="/notices"
-          className="text-xs text-blue-500 hover:underline flex items-center"
+          className="text-xs text-blue-600 dark:text-cyan-300 hover:underline dark:hover:text-cyan-200 flex items-center"
         >
           더보기 <ChevronRight size={14} />
         </Link>
@@ -70,11 +70,11 @@ export default function NoticeBoard() {
             <Loader2 className="animate-spin text-gray-400" />
           </div>
         ) : error ? (
-          <p className="text-sm text-red-500 flex items-center gap-2">
+          <p className="text-sm text-red-500 dark:text-red-300 flex items-center gap-2">
             <AlertTriangle size={16} /> {error}
           </p>
         ) : notices.length === 0 ? (
-          <p className="text-sm text-gray-500">등록된 공지사항이 없습니다.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">등록된 공지사항이 없습니다.</p>
         ) : (
           <ul className="space-y-4">
             {notices.map((notice) => (
@@ -86,7 +86,7 @@ export default function NoticeBoard() {
                   <h3 className="font-semibold text-sm truncate group-hover:text-blue-600 dark:group-hover:text-blue-400">
                     {notice.title}
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {new Date(notice.created_at).toLocaleDateString('ko-KR')}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-snug line-clamp-2">

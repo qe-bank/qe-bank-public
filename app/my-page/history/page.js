@@ -53,8 +53,8 @@ export default function HistoryPage() {
       <h2 className="text-2xl font-bold">🕓 최근 풀이 기록</h2>
       {history.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <History size={48} className="mx-auto text-gray-400" />
-          <p className="mt-4 text-gray-500">아직 문제를 푼 기록이 없습니다.</p>
+          <History size={48} className="mx-auto text-gray-400 dark:text-gray-500" />
+          <p className="mt-4 text-gray-500 dark:text-gray-400">아직 문제를 푼 기록이 없습니다.</p>
         </div>
       ) : (
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -65,7 +65,7 @@ export default function HistoryPage() {
             return (
               <li key={`${q.QuestionID}-${item.LastAttemptedAt}`} className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <div className="flex items-center gap-3">
-                  <span className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${item.IsCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                  <span className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${item.IsCorrect ? 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-300' : 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300'}`}>
                     {item.IsCorrect ? <Check size={20} /> : <X size={20} />}
                   </span>
                   <div>
@@ -73,7 +73,7 @@ export default function HistoryPage() {
                       {q.Subject}
                     </span>
                     <p className="mt-1 font-medium line-clamp-1">{q.QuestionNum}. {q.QuestionText.replace(/\[.*?\]/g, '')}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(item.LastAttemptedAt).toLocaleString('ko-KR')}
                     </p>
                   </div>

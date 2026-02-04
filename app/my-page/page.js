@@ -34,13 +34,13 @@ export default function StatisticsDashboard() {
     return (
       <div className="flex justify-center items-center py-20">
         <Loader2 className="animate-spin text-blue-500" size={32} />
-        <span className="ml-3 text-lg">통계 데이터를 불러오는 중...</span>
+        <span className="ml-3 text-lg text-gray-700 dark:text-gray-300">통계 데이터를 불러오는 중...</span>
       </div>
     );
   }
   
   if (!user) {
-    return <p>통계를 보려면 로그인이 필요합니다.</p>;
+    return <p className="text-gray-700 dark:text-gray-300">통계를 보려면 로그인이 필요합니다.</p>;
   }
 
   return (

@@ -239,7 +239,7 @@ function HomePageContent() {
       <main className="max-w-6xl mx-auto p-4 md:p-6 mt-4">
         {error && (
           <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700 rounded-lg flex items-center gap-3">
-            <AlertTriangle className="text-red-600" />
+            <AlertTriangle className="text-red-600 dark:text-red-300" />
             <span className="text-red-700 dark:text-red-200">{error}</span>
           </div>
         )}
@@ -258,9 +258,9 @@ function HomePageContent() {
                     onClick={() => setIsSearchOpen(true)}
                     className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg h-full w-full flex flex-col items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
               >
-                    <Search size={36} className="text-gray-400 mb-3" />
+                    <Search size={36} className="text-gray-400 dark:text-gray-500 mb-3" />
                     <span className="text-xl font-bold">문제 검색</span>
-                    <span className="text-sm text-gray-500">키워드로 문제 찾기</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">키워드로 문제 찾기</span>
               </button>
             </div>
           </div>
@@ -284,9 +284,9 @@ function HomePageContent() {
           </div>
         ) : (
           <div>
-              <button 
+            <button 
               onClick={() => setSelectedSubject(null)}
-              className="flex items-center gap-1 text-sm text-gray-500 hover:underline mb-4"
+              className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:underline mb-4"
             >
               <ArrowLeft size={16} /> 대시보드로 돌아가기
             </button>

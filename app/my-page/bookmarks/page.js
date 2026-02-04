@@ -50,8 +50,8 @@ export default function BookmarksPage() {
       <h2 className="text-2xl font-bold">🔖 북마크한 문제</h2>
       {bookmarks.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <BookmarkX size={48} className="mx-auto text-gray-400" />
-          <p className="mt-4 text-gray-500">북마크한 문제가 없습니다.</p>
+          <BookmarkX size={48} className="mx-auto text-gray-400 dark:text-gray-500" />
+          <p className="mt-4 text-gray-500 dark:text-gray-400">북마크한 문제가 없습니다.</p>
         </div>
       ) : (
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -62,7 +62,7 @@ export default function BookmarksPage() {
                   {q.Subject}
                 </span>
                 <p className="mt-1 font-medium line-clamp-1">{q.QuestionNum}. {q.QuestionText.replace(/\[.*?\]/g, '')}</p>
-                <p className="text-xs text-gray-500">{q.ExamYear}년 {q.ExamRound}회</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{q.ExamYear}년 {q.ExamRound}회</p>
               </div>
               <Link 
                 href={`/?retry_id=${q.QuestionID}`}
