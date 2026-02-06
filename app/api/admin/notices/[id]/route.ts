@@ -3,7 +3,7 @@ import { getAdminContext, logAdminAction } from '../../../../../lib/adminServer'
 
 export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, isAdmin, adminClient, error } = await getAdminContext()
 
@@ -17,7 +17,7 @@ export async function GET(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const noticeId = params.id
+  const { id: noticeId } = await params
   const { data, error: fetchError } = await adminClient
     .from('notice_board')
     .select('id, title, content, created_at')
@@ -33,7 +33,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, isAdmin, adminClient, error } = await getAdminContext()
 
@@ -47,7 +47,7 @@ export async function PUT(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const noticeId = params.id
+  const { id: noticeId } = await params
   const body = await request.json()
   const title = String(body?.title || '').trim()
   const content = String(body?.content || '').trim()
@@ -66,7 +66,9 @@ export async function PUT(
   }
 
   await logAdminAction({
-    adminClient,
+    adminClient: adminClient as unknown as {
+      from: (table: string) => { insert: (values: Record<string, unknown>) => unknown }
+    },
     adminId: user.id,
     action: 'notice_update',
     targetNoticeId: noticeId,
@@ -78,7 +80,7 @@ export async function PUT(
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, isAdmin, adminClient, error } = await getAdminContext()
 
@@ -92,7 +94,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const noticeId = params.id
+  const { id: noticeId } = await params
 
   const { error: deleteError } = await adminClient
     .from('notice_board')
@@ -104,7 +106,9 @@ export async function DELETE(
   }
 
   await logAdminAction({
-    adminClient,
+    adminClient: adminClient as unknown as {
+      from: (table: string) => { insert: (values: Record<string, unknown>) => unknown }
+    },
     adminId: user.id,
     action: 'notice_delete',
     targetNoticeId: noticeId

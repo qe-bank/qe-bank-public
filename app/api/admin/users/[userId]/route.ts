@@ -3,7 +3,7 @@ import { getAdminContext, logAdminAction } from '../../../../../lib/adminServer'
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const { searchParams } = new URL(request.url)
   const page = parseInt(searchParams.get('page') || '1', 10)
@@ -23,7 +23,7 @@ export async function GET(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const userId = params.userId
+  const { userId } = await params
 
   const { data: userData, error: userError } = await adminClient.auth.admin.getUserById(userId)
   if (userError || !userData?.user) {
@@ -78,7 +78,7 @@ export async function GET(
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const { user, isAdmin, role, adminClient, error } = await getAdminContext()
 
@@ -95,7 +95,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Super admin only' }, { status: 403 })
   }
 
-  const userId = params.userId
+  const { userId } = await params
   if (userId === user.id) {
     return NextResponse.json({ error: 'Cannot delete self' }, { status: 400 })
   }
@@ -112,7 +112,9 @@ export async function DELETE(
   }
 
   await logAdminAction({
-    adminClient,
+    adminClient: adminClient as unknown as {
+      from: (table: string) => { insert: (values: Record<string, unknown>) => unknown }
+    },
     adminId: user.id,
     action: 'user_hard_delete',
     targetUserId: userId
@@ -123,7 +125,7 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const { user, isAdmin, adminClient, error } = await getAdminContext()
 
@@ -139,7 +141,7 @@ export async function PATCH(
 
   const body = await request.json()
   const action = body?.action
-  const userId = params.userId
+  const { userId } = await params
 
   if (action !== 'soft_delete' && action !== 'restore') {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
@@ -163,7 +165,9 @@ export async function PATCH(
   }
 
   await logAdminAction({
-    adminClient,
+    adminClient: adminClient as unknown as {
+      from: (table: string) => { insert: (values: Record<string, unknown>) => unknown }
+    },
     adminId: user.id,
     action: isDeleted ? 'user_soft_delete' : 'user_restore',
     targetUserId: userId

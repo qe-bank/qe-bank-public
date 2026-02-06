@@ -58,7 +58,9 @@ export async function POST(request: Request) {
   }
 
   await logAdminAction({
-    adminClient,
+    adminClient: adminClient as unknown as {
+      from: (table: string) => { insert: (values: Record<string, unknown>) => unknown }
+    },
     adminId: user.id,
     action: 'notice_create',
     targetNoticeId: data?.id || null,

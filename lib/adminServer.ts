@@ -42,6 +42,17 @@ export async function getAdminContext() {
   return { user, isAdmin, role, adminClient, error: null }
 }
 
+type AdminClientLike = {
+  from: (table: string) => {
+    insert: (values: Record<string, unknown>) => unknown
+  }
+}
+
+const isAdminClientLike = (value: unknown): value is AdminClientLike => {
+  if (!value || typeof value !== 'object') return false
+  return typeof (value as AdminClientLike).from === 'function'
+}
+
 export async function logAdminAction({
   adminClient,
   adminId,
@@ -50,13 +61,14 @@ export async function logAdminAction({
   targetNoticeId,
   payload
 }: {
-  adminClient: ReturnType<typeof createClient>
+  adminClient: unknown
   adminId: string
   action: string
   targetUserId?: string | null
   targetNoticeId?: string | number | null
   payload?: Record<string, unknown> | null
 }) {
+  if (!isAdminClientLike(adminClient)) return
   try {
     await adminClient.from('admin_actions').insert({
       admin_id: adminId,
