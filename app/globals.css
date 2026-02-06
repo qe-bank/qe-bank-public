@@ -30,6 +30,22 @@ body {
   scroll-margin-top: 1rem;
 }
 
+/* 마크다운 목록 항목 줄바꿈 방지 */
+.notice-content ul,
+.notice-content ol {
+  list-style-position: outside;
+}
+
+.notice-content li > p {
+  display: inline;
+  margin: 0;
+}
+
+.notice-content li > p + ul,
+.notice-content li > p + ol {
+  margin-top: 0.5rem;
+}
+
 /* 코드 하이라이팅 다크 모드 지원 */
 .dark .notice-content pre {
   background-color: #1e1e1e !important;
