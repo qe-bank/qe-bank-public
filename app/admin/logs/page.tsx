@@ -13,7 +13,7 @@ export default function AdminLogsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const fetchLogs = async (nextPage) => {
+  const fetchLogs = async (nextPage: number) => {
     setLoading(true)
     const res = await fetch(`/api/admin/logs?page=${nextPage}&perPage=${PER_PAGE}`, {
       credentials: 'include'

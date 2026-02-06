@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { Loader2, Plus } from 'lucide-react'
 import RichTextEditor from '../../components/RichTextEditor'
@@ -30,7 +31,7 @@ export default function AdminNoticesPage() {
     fetchNotices()
   }, [])
 
-  const handleCreate = async (e) => {
+  const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!title.trim() || !content.trim()) return
 

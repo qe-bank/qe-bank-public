@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Loader2, Trash2 } from 'lucide-react'
@@ -38,9 +39,9 @@ export default function AdminNoticeEditPage() {
     }
 
     fetchNotice()
-  }, [supabase, noticeId])
+  }, [noticeId])
 
-  const handleSave = async (e) => {
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!title.trim() || !content.trim()) return
 

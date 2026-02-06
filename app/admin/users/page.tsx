@@ -13,7 +13,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const fetchUsers = async (nextPage) => {
+  const fetchUsers = async (nextPage: number) => {
     setLoading(true)
     const res = await fetch(`/api/admin/users?page=${nextPage}&perPage=${PER_PAGE}`, {
       credentials: 'include'
