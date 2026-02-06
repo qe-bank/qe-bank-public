@@ -8,6 +8,7 @@ import AuthButtons from './components/AuthButtons';
 import Link from 'next/link';
 import Footer from './components/Footer'; 
 import ThemeSwitcher from './components/ThemeSwitcher'; 
+import AdminNavLink from './components/AdminNavLink';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -69,13 +70,14 @@ export default function RootLayout({
               <nav className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
                 <Link href="/" className="text-2xl font-bold text-blue-700 dark:text-cyan-300 hover:text-blue-800 dark:hover:text-cyan-200 transition-colors">쏘가리 Q.E.A</Link>
                 <div className="flex items-center gap-4">
+                  <AdminNavLink />
                   <AuthButtons />
                   <ThemeSwitcher /> 
                 </div>
               </nav>
             </header>
             
-            <main className="flex-grow"> 
+            <main className="grow"> 
               {children} 
             </main>
 

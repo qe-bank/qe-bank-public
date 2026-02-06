@@ -69,3 +69,83 @@ body {
 .dark .notice-content::-webkit-scrollbar-thumb:hover {
   background: #777;
 }
+
+/* Rich text editor (Lexical) */
+.rich-editor {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.dark .rich-editor {
+  border-color: #4b5563;
+  background: #1f2937;
+}
+
+.rich-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.dark .rich-editor-toolbar {
+  border-bottom-color: #374151;
+  background: #111827;
+}
+
+.rich-editor-toolbar button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.rich-editor-toolbar button:hover {
+  background: #f3f4f6;
+}
+
+.dark .rich-editor-toolbar button {
+  background: #1f2937;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+.dark .rich-editor-toolbar button:hover {
+  background: #374151;
+}
+
+.rich-editor-toolbar .divider {
+  width: 1px;
+  background: #e5e7eb;
+  margin: 0 0.25rem;
+}
+
+.dark .rich-editor-toolbar .divider {
+  background: #374151;
+}
+
+.rich-editor-input {
+  min-height: 240px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: #111827;
+  outline: none;
+}
+
+.dark .rich-editor-input {
+  color: #f9fafb;
+}
+
+.rich-editor-placeholder {
+  position: absolute;
+  margin: 0.75rem;
+  color: #9ca3af;
+  pointer-events: none;
+  font-size: 0.9rem;
+}
