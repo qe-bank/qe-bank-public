@@ -11,7 +11,7 @@ export async function getAdminContext() {
     return { user: null, isAdmin: false, role: null, adminClient: null, error: 'Missing Supabase env' }
   }
 
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
 
   const authClient = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {

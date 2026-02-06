@@ -108,7 +108,7 @@ export default function AdminUserDetailPage() {
     router.push('/admin/users')
   }
 
-  const handleSoftDelete = async (action) => {
+  const handleSoftDelete = async (action: 'soft_delete' | 'restore') => {
     const confirmMessage =
       action === 'soft_delete'
         ? '이 회원을 소프트 삭제할까요? (복구 가능)'

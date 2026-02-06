@@ -7,11 +7,21 @@ import { Loader2 } from 'lucide-react'
 const PER_PAGE = 20
 
 export default function AdminLogsPage() {
-  const [logs, setLogs] = useState([])
+  type AdminLog = {
+    id: number
+    admin_id: string
+    action: string
+    target_user_id: string | null
+    target_notice_id: string | null
+    payload: Record<string, unknown> | null
+    created_at: string | null
+  }
+
+  const [logs, setLogs] = useState<AdminLog[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchLogs = async (nextPage: number) => {
     setLoading(true)

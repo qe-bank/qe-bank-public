@@ -7,12 +7,19 @@ import { Loader2, Plus } from 'lucide-react'
 import RichTextEditor from '../../components/RichTextEditor'
 
 export default function AdminNoticesPage() {
-  const [notices, setNotices] = useState([])
+  type AdminNotice = {
+    id: string | number
+    created_at: string
+    title: string
+    content: string
+  }
+
+  const [notices, setNotices] = useState<AdminNotice[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchNotices = async () => {
     setLoading(true)

@@ -27,8 +27,13 @@ export async function GET() {
     .from('UserProblemHistory')
     .select('QuestionID', { count: 'exact', head: true })
 
+  const usersTotal =
+    usersData && 'total' in usersData && typeof usersData.total === 'number'
+      ? usersData.total
+      : 0
+
   return NextResponse.json({
-    usersTotal: usersData?.total || 0,
+    usersTotal,
     noticesTotal: noticesCount || 0,
     historyTotal: historyCount || 0
   })

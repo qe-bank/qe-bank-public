@@ -7,11 +7,22 @@ import { Loader2 } from 'lucide-react'
 const PER_PAGE = 20
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState([])
+  type AdminUser = {
+    id: string
+    email: string | null
+    created_at: string | null
+    last_sign_in_at: string | null
+    profile?: {
+      is_deleted?: boolean
+      deleted_at?: string | null
+    } | null
+  }
+
+  const [users, setUsers] = useState<AdminUser[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchUsers = async (nextPage: number) => {
     setLoading(true)

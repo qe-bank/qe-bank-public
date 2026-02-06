@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   }
 
   const userIds = (data.users || []).map((item) => item.id)
-  let profilesById = {}
+  let profilesById: Record<string, { user_id: string; is_deleted?: boolean; deleted_at?: string | null }> = {}
 
   if (userIds.length > 0) {
     const { data: profiles, error: profilesError } = await adminClient
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
       profilesById = (profiles || []).reduce((acc, profile) => {
         acc[profile.user_id] = profile
         return acc
-      }, {})
+      }, {} as Record<string, { user_id: string; is_deleted?: boolean; deleted_at?: string | null }>)
     }
   }
 

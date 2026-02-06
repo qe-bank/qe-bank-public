@@ -17,7 +17,7 @@ export default function AdminNoticeEditPage() {
   const [deleting, setDeleting] = useState(false)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchNotice = async () => {

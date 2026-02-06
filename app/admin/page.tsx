@@ -32,7 +32,11 @@ const adminCards = [
 ]
 
 export default function AdminHomePage() {
-  const [metrics, setMetrics] = useState(null)
+  const [metrics, setMetrics] = useState<{
+    usersTotal: number
+    noticesTotal: number
+    historyTotal: number
+  } | null>(null)
 
   useEffect(() => {
     const fetchMetrics = async () => {
