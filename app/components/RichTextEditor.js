@@ -16,6 +16,7 @@ import {
   UNDO_COMMAND
 } from 'lexical'
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
+import { CodeNode } from '@lexical/code'
 import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
@@ -106,7 +107,7 @@ export default function RichTextEditor({
   const initialConfig = useMemo(
     () => ({
       namespace: 'notice-editor',
-      nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode],
+      nodes: [HeadingNode, QuoteNode, CodeNode, ListNode, ListItemNode, LinkNode],
       onError(error) {
         console.error(error)
       },

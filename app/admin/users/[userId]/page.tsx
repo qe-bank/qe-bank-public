@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Loader2, Trash2 } from 'lucide-react'
@@ -35,6 +35,20 @@ type RecentHistoryItem = {
   }
 }
 
+type AdminStatsResponse = {
+  range: { start: string; end: string }
+  totals: {
+    total: number
+    correct: number
+    incorrect: number
+    accuracy: number
+  }
+  dailyCounts: Record<string, number>
+  itemsByDate: Record<string, RecentHistoryItem[]>
+  subjectCounts: Record<string, { total: number; correct: number }>
+  categoryCounts: Record<string, { total: number; correct: number }>
+}
+
 export default function AdminUserDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -53,6 +67,22 @@ export default function AdminUserDetailPage() {
   const [historyTotal, setHistoryTotal] = useState(0)
   const historyPerPage = 50
   const [refreshKey, setRefreshKey] = useState(0)
+
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [statsError, setStatsError] = useState<string | null>(null)
+  const [statsDetail, setStatsDetail] = useState<AdminStatsResponse | null>(null)
+  const [rangeStart, setRangeStart] = useState(() => {
+    const end = new Date()
+    const start = new Date()
+    start.setDate(end.getDate() - 29)
+    return start.toISOString().slice(0, 10)
+  })
+  const [rangeEnd, setRangeEnd] = useState(() => new Date().toISOString().slice(0, 10))
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const today = new Date()
+    return new Date(today.getFullYear(), today.getMonth(), 1)
+  })
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
   useEffect(() => {
     if (!userId) return
@@ -93,6 +123,39 @@ export default function AdminUserDetailPage() {
     }
   }, [userId, historyPage, refreshKey])
 
+  useEffect(() => {
+    if (!userId || !rangeStart || !rangeEnd) return
+    let isMounted = true
+
+    const run = async () => {
+      setStatsLoading(true)
+      const res = await fetch(
+        `/api/admin/users/${userId}/stats?start=${rangeStart}&end=${rangeEnd}`,
+        { credentials: 'include' }
+      )
+      if (!res.ok) {
+        if (isMounted) {
+          setStatsError('상세 통계를 불러오지 못했습니다.')
+          setStatsLoading(false)
+        }
+        return
+      }
+      const data = await res.json()
+      if (isMounted) {
+        setStatsDetail(data)
+        setStatsError(null)
+        setStatsLoading(false)
+        setSelectedDate(null)
+      }
+    }
+
+    run()
+
+    return () => {
+      isMounted = false
+    }
+  }, [userId, rangeStart, rangeEnd])
+
   const handleDelete = async () => {
     if (!window.confirm('정말로 이 회원을 삭제할까요?')) return
     setDeleting(true)
@@ -130,6 +193,32 @@ export default function AdminUserDetailPage() {
     setHistoryPage(1)
     setRefreshKey((prev) => prev + 1)
   }
+
+  const calendarDays = useMemo(() => {
+    const start = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
+    const end = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0)
+    const days = []
+    const startOffset = start.getDay()
+    for (let i = 0; i < startOffset; i += 1) {
+      days.push(null)
+    }
+    for (let day = 1; day <= end.getDate(); day += 1) {
+      const current = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day)
+      const key = current.toISOString().slice(0, 10)
+      days.push({ date: current, key })
+    }
+    return days
+  }, [calendarMonth])
+
+  const sortedSubjectStats = useMemo(() => {
+    if (!statsDetail?.subjectCounts) return []
+    return Object.entries(statsDetail.subjectCounts).sort((a, b) => b[1].total - a[1].total)
+  }, [statsDetail])
+
+  const sortedCategoryStats = useMemo(() => {
+    if (!statsDetail?.categoryCounts) return []
+    return Object.entries(statsDetail.categoryCounts).sort((a, b) => b[1].total - a[1].total)
+  }, [statsDetail])
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
@@ -222,6 +311,220 @@ export default function AdminUserDetailPage() {
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="mt-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <h2 className="text-lg font-semibold">상세 통계</h2>
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <label className="text-gray-600 dark:text-gray-300">
+                  시작
+                  <input
+                    type="date"
+                    className="ml-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1"
+                    value={rangeStart}
+                    onChange={(e) => setRangeStart(e.target.value)}
+                  />
+                </label>
+                <label className="text-gray-600 dark:text-gray-300">
+                  종료
+                  <input
+                    type="date"
+                    className="ml-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1"
+                    value={rangeEnd}
+                    onChange={(e) => setRangeEnd(e.target.value)}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {statsLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="animate-spin text-gray-400" />
+              </div>
+            ) : statsError ? (
+              <p className="text-sm text-red-500 dark:text-red-300">{statsError}</p>
+            ) : statsDetail ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                  <div className="p-4 rounded border border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">풀이 수</p>
+                    <p className="text-xl font-bold">{statsDetail.totals.total}</p>
+                  </div>
+                  <div className="p-4 rounded border border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">정답</p>
+                    <p className="text-xl font-bold text-green-600 dark:text-green-300">
+                      {statsDetail.totals.correct}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded border border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">오답</p>
+                    <p className="text-xl font-bold text-red-600 dark:text-red-300">
+                      {statsDetail.totals.incorrect}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded border border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">정답률</p>
+                    <p className="text-xl font-bold">{statsDetail.totals.accuracy}%</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">과목별 풀이 수/정답률</h3>
+                    {sortedSubjectStats.length === 0 ? (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">데이터가 없습니다.</p>
+                    ) : (
+                      <ul className="space-y-2 text-xs">
+                        {sortedSubjectStats.map(([subject, stats]) => {
+                          const accuracy = stats.total === 0 ? 0 : Math.round((stats.correct / stats.total) * 1000) / 10
+                          return (
+                            <li key={subject} className="flex items-center justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-2">
+                              <span className="font-medium">{subject}</span>
+                              <span className="text-gray-500 dark:text-gray-400">
+                                {stats.total}문항 · {accuracy}%
+                              </span>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">영역별 풀이 수/정답률</h3>
+                    {sortedCategoryStats.length === 0 ? (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">데이터가 없습니다.</p>
+                    ) : (
+                      <ul className="space-y-2 text-xs">
+                        {sortedCategoryStats.map(([category, stats]) => {
+                          const accuracy = stats.total === 0 ? 0 : Math.round((stats.correct / stats.total) * 1000) / 10
+                          return (
+                            <li key={category} className="flex items-center justify-between border-b border-dashed border-gray-200 dark:border-gray-700 pb-2">
+                              <span className="font-medium">{category}</span>
+                              <span className="text-gray-500 dark:text-gray-400">
+                                {stats.total}문항 · {accuracy}%
+                              </span>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-sm font-semibold">달력 보기</h3>
+                      <div className="flex items-center gap-2 text-xs">
+                        <button
+                          type="button"
+                          className="px-2 py-1 border border-gray-200 dark:border-gray-700 rounded"
+                          onClick={() =>
+                            setCalendarMonth(
+                              new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1)
+                            )
+                          }
+                        >
+                          이전
+                        </button>
+                        <span className="text-gray-600 dark:text-gray-300">
+                          {calendarMonth.getFullYear()}년 {calendarMonth.getMonth() + 1}월
+                        </span>
+                        <button
+                          type="button"
+                          className="px-2 py-1 border border-gray-200 dark:border-gray-700 rounded"
+                          onClick={() =>
+                            setCalendarMonth(
+                              new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1)
+                            )
+                          }
+                        >
+                          다음
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-7 gap-2 text-xs text-center text-gray-400 mb-2">
+                      {['일', '월', '화', '수', '목', '금', '토'].map((label) => (
+                        <span key={label}>{label}</span>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-2 text-xs">
+                      {calendarDays.map((day, idx) => {
+                        if (!day) {
+                          return <div key={`empty-${idx}`} />
+                        }
+                        const count = statsDetail.dailyCounts[day.key] || 0
+                        const isSelected = selectedDate === day.key
+                        return (
+                          <button
+                            type="button"
+                            key={day.key}
+                            className={`h-14 rounded border text-left px-2 py-1 ${
+                              isSelected
+                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                                : 'border-gray-200 dark:border-gray-700'
+                            }`}
+                            onClick={() => setSelectedDate(day.key)}
+                          >
+                            <div className="font-semibold">{day.date.getDate()}</div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400">
+                              {count ? `${count}문항` : '0'}
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">선택 날짜 문제 목록</h3>
+                    {!selectedDate ? (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        달력에서 날짜를 선택하세요.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                          {selectedDate}
+                        </p>
+                        {statsDetail.itemsByDate[selectedDate]?.length ? (
+                          <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-300 max-h-80 overflow-y-auto">
+                            {statsDetail.itemsByDate[selectedDate].map((item) => (
+                              <li
+                                key={`${item.QuestionID}-${item.LastAttemptedAt}`}
+                                className="flex items-center justify-between gap-3"
+                              >
+                                <div className="min-w-0">
+                                  <div className="truncate">
+                                    {item.Questions?.Subject || '-'} {item.Questions?.QuestionNum || ''}번
+                                  </div>
+                                  <div className="truncate text-gray-400 dark:text-gray-500">
+                                    {item.Questions?.QuestionText || ''}
+                                  </div>
+                                </div>
+                                <span
+                                  className={
+                                    item.IsCorrect
+                                      ? 'text-green-600 dark:text-green-300'
+                                      : 'text-red-600 dark:text-red-300'
+                                  }
+                                >
+                                  {item.IsCorrect ? '정답' : '오답'}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">풀이 기록이 없습니다.</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 dark:text-gray-400">데이터가 없습니다.</p>
+            )}
           </div>
 
           <div className="mt-6 flex flex-wrap justify-end gap-3">
