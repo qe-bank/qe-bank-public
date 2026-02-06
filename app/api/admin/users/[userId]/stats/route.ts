@@ -7,6 +7,22 @@ const toDateKey = (value: string) => {
   return date.toISOString().slice(0, 10)
 }
 
+type QuestionInfo = {
+  QuestionNum?: number
+  QuestionText?: string
+  Subject?: string
+  Category?: string
+}
+
+type HistoryItem = {
+  QuestionID: string
+  IsCorrect: boolean
+  LastAttemptedAt: string
+  Questions: QuestionInfo | QuestionInfo[]
+}
+
+type CountPair = { total: number; correct: number }
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
@@ -53,17 +69,29 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to load history' }, { status: 500 })
   }
 
-  const itemsByDate: Record<string, unknown[]> = {}
+  const items = (history || []) as HistoryItem[]
+
+  // --- aggregation ---
+  const itemsByDate: Record<string, HistoryItem[]> = {}
   const dailyCounts: Record<string, number> = {}
-  const subjectCounts: Record<string, { total: number; correct: number }> = {}
-  const categoryCounts: Record<string, { total: number; correct: number }> = {}
+  const subjectCounts: Record<string, CountPair> = {}
+  const categoryCounts: Record<string, CountPair> = {}
+  // 과목 > 영역 중첩 집계
+  const subjectCategoryMap: Record<string, Record<string, CountPair>> = {}
+  // 최근 틀린 문제 (최대 20개)
+  const recentWrong: HistoryItem[] = []
 
   let total = 0
   let correct = 0
 
-  for (const item of history || []) {
+  for (const item of items) {
     total += 1
     if (item.IsCorrect) correct += 1
+
+    // 최근 틀린 문제 수집
+    if (!item.IsCorrect && recentWrong.length < 20) {
+      recentWrong.push(item)
+    }
 
     const dateKey = toDateKey(item.LastAttemptedAt)
     if (dateKey) {
@@ -74,19 +102,58 @@ export async function GET(
 
     const question = Array.isArray(item.Questions) ? item.Questions[0] : item.Questions
     const subject = question?.Subject || '기타'
+    const category = question?.Category || '기타'
+
+    // 과목별
     if (!subjectCounts[subject]) {
       subjectCounts[subject] = { total: 0, correct: 0 }
     }
     subjectCounts[subject].total += 1
     if (item.IsCorrect) subjectCounts[subject].correct += 1
 
-    const category = question?.Category || '기타'
+    // 영역별
     if (!categoryCounts[category]) {
       categoryCounts[category] = { total: 0, correct: 0 }
     }
     categoryCounts[category].total += 1
     if (item.IsCorrect) categoryCounts[category].correct += 1
+
+    // 과목 > 영역 중첩
+    if (!subjectCategoryMap[subject]) {
+      subjectCategoryMap[subject] = {}
+    }
+    if (!subjectCategoryMap[subject][category]) {
+      subjectCategoryMap[subject][category] = { total: 0, correct: 0 }
+    }
+    subjectCategoryMap[subject][category].total += 1
+    if (item.IsCorrect) subjectCategoryMap[subject][category].correct += 1
   }
+
+  // recharts 호환 포맷
+  const subjectStatsChart = Object.entries(subjectCounts).map(([name, v]) => ({
+    name,
+    total: v.total,
+    correct: v.correct,
+    wrong: v.total - v.correct
+  }))
+
+  const categoryStatsChart = Object.entries(categoryCounts)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 10)
+    .map(([name, v]) => ({
+      name,
+      total: v.total,
+      correct: v.correct,
+      wrong: v.total - v.correct
+    }))
+
+  const dailyStatsChart = Object.entries(dailyCounts)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([day, count]) => {
+      const dayItems = itemsByDate[day] || []
+      const dayCorrect = dayItems.filter((i) => i.IsCorrect).length
+      return { day, total: count, correct: dayCorrect, wrong: count - dayCorrect }
+    })
 
   return NextResponse.json({
     range: { start, end },
@@ -99,6 +166,11 @@ export async function GET(
     dailyCounts,
     itemsByDate,
     subjectCounts,
-    categoryCounts
+    categoryCounts,
+    subjectCategoryMap,
+    recentWrong,
+    subjectStatsChart,
+    categoryStatsChart,
+    dailyStatsChart
   })
 }
